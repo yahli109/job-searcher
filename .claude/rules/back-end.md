@@ -1,0 +1,8 @@
+# job-searcher rules
+
+- [2026-11-05] Adding a company: fetch its page once and check what `fetch_jobs` returns BEFORE adding it to `config.json`. The count must be jobs, not nav links (Sentrycs read 100 "jobs" as links until Comeet was detected, 19 real ones after). Order of detection: Greenhouse/Lever/Ashby by host, then Comeet (embedded `COMPANY_POSITIONS_DATA` or widget `comeet_uid`/`comeet_token`), then a `title_regex` if the page's jobs are not links (Ottopia), then all links.
+- [2026-11-05] A `title_regex` anchors on the opening tag (`<h4 fs-cmsfilter-field="name"...`): the bare attribute also matched a copy inside an inline script.
+- [2026-11-05] Do not add a site that fails every run: each failure turns the daily run red and GitHub emails the founder. Not trackable with stdlib urllib: Exodigo (Vercel Security Checkpoint, 429), Aeronautics (Cloudflare captcha, 403), Shifters (Lovable SPA, careers "coming soon", no list in the bundle).
+- [2026-11-05] `seen.json` absent = first run: everything is recorded and NO alert is sent. Deleting it silently rebaselines; never delete it to "reset" without telling the founder. A newly added company's existing jobs WILL alert on its first daily run (seen.json exists): run `python jobs.py` locally with no Telegram env vars (dry run prints) and commit the updated seen.json if he does not want that burst.
+- [2026-11-05] Hitting a Wix site (High Lander) several times in a few minutes returns 429; once a day is fine. Do not loop live runs while testing.
+- [2026-11-05] Self-check: `python test_jobs.py`. Telegram allows ~1 message/sec per chat, hence the 1.1s sleep per alert.
