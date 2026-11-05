@@ -1,8 +1,14 @@
 {
   "keywords": [],
   "companies": [
-    {"name": "Anthropic", "url": "https://boards.greenhouse.io/anthropic"},
-    {"name": "Palantir", "url": "https://jobs.lever.co/palantir"},
-    {"name": "Notion", "url": "https://jobs.ashbyhq.com/notion"}
+    {"name": "Kela", "url": "https://www.comeet.com/jobs/kelasys/2A.007"},
+    {"name": "Covenant Industries", "url": "https://www.comeet.com/jobs/covenantindustries/3B.00F"},
+    {"name": "Skapion", "url": "https://www.skapion.com/careers"},
+    {"name": "AITAN", "url": "https://www.comeet.com/jobs/AITAN/FA.006"},
+    {"name": "Airobotics", "url": "https://www.airoboticsdrones.com/careers/"},
+    {"name": "Ottopia", "url": "https://www.ottopia.tech/careers", "title_regex": "<h4 fs-cmsfilter-field=\"name\"[^>]*>([^<]+)<"},
+    {"name": "Sentrycs", "url": "https://sentrycs.com/careers/"},
+    {"name": "High Lander", "url": "https://www.highlander.io/careers"},
+    {"name": "Sightec", "url": "https://sightec.com/career/"}
   ]
 }

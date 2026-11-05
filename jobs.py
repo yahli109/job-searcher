@@ -1,10 +1,12 @@
 """Check company career pages, filter by keywords, alert on jobs not seen before."""
 import json
 import os
+import re
 import sys
 import time
 import urllib.parse
 import urllib.request
+from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -40,6 +42,25 @@ class Links(HTMLParser):
             self._href = None
 
 
+def comeet_jobs(html):
+    """Jobs from a Comeet-powered page, or None if the page isn't Comeet."""
+    i = html.find("COMPANY_POSITIONS_DATA = ")  # comeet.com hosted page embeds the list
+    if i >= 0:
+        positions = json.JSONDecoder().raw_decode(html, i + len("COMPANY_POSITIONS_DATA = "))[0]
+    else:  # company site with the Comeet widget: its public uid + token are in the page
+        m = re.search(r"company/([0-9A-F]{2}\.[0-9A-F]{3})/positions\?token=([0-9A-F]+)", html)
+        if m:
+            uid, token = m.groups()
+        else:
+            u = re.search(r'uid":"([0-9A-F]{2}\.[0-9A-F]{3})"', html)  # "comeet_uid" / "uid"
+            t = re.search(r'token":"([0-9A-F]{20,})"', html)
+            if not (u and t):
+                return None
+            uid, token = u.group(1), t.group(1)
+        positions = json.loads(get(f"https://www.comeet.co/careers-api/2.0/company/{uid}/positions?token={token}"))
+    return [(p["name"], p.get("url_comeet_hosted_page") or p["url_active_page"]) for p in positions]
+
+
 def ats(url):
     """('greenhouse'|'lever'|'ashby', slug) for a hosted job-board link, else ('html', None)."""
     u = urllib.parse.urlparse(url)
@@ -50,8 +71,9 @@ def ats(url):
     return "html", None
 
 
-def fetch_jobs(url):
-    """Return [(title, job_url)] for one careers page link."""
+def fetch_jobs(c):
+    """Return [(title, job_url)] for one company entry from config.json."""
+    url = c["url"]
     kind, slug = ats(url)
     if kind == "greenhouse":
         data = json.loads(get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs"))
@@ -62,9 +84,16 @@ def fetch_jobs(url):
     if kind == "ashby":
         data = json.loads(get(f"https://api.ashbyhq.com/posting-api/job-board/{slug}"))
         return [(j["title"], j["jobUrl"]) for j in data["jobs"]]
+    html = get(url)
+    jobs = comeet_jobs(html)
+    if jobs is not None:
+        return jobs
+    if "title_regex" in c:  # page whose jobs aren't links: regex group 1 = job title
+        titles = {unescape(" ".join(t.split())) for t in re.findall(c["title_regex"], html)}
+        return [(t, f"{url}#{urllib.parse.quote(t)}") for t in sorted(titles)]
     # ponytail: any other page = every link on it; JS-rendered pages return nothing, add a headless browser if one matters
     p = Links()
-    p.feed(get(url))
+    p.feed(html)
     return [(t, urllib.parse.urljoin(url, h)) for t, h in p.links if t]
 
 
@@ -97,7 +126,7 @@ def main():
 
     for c in cfg["companies"]:
         try:
-            jobs = fetch_jobs(c["url"])
+            jobs = fetch_jobs(c)
         except Exception as e:
             print(f"!! {c['name']}: {e}", file=sys.stderr)
             failed.append(c["name"])
