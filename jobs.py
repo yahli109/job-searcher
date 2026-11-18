@@ -84,6 +84,9 @@ def fetch_jobs(c):
     if kind == "ashby":
         data = json.loads(get(f"https://api.ashbyhq.com/posting-api/job-board/{slug}"))
         return [(j["title"], j["jobUrl"]) for j in data["jobs"]]
+    if "json_url" in c:  # app page whose jobs come from a JSON list of {"title": ...} (Line5 on Base44)
+        titles = {j["title"] for j in json.loads(get(c["json_url"]))}
+        return [(t, f"{url}#{urllib.parse.quote(t)}") for t in sorted(titles)]
     html = get(url)
     jobs = comeet_jobs(html)
     if jobs is not None:

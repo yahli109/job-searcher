@@ -14,6 +14,9 @@ jobs.get = lambda url: calls.append(url) or '[{"name": "C++ Developer", "url_com
 assert comeet_jobs('var comeetvar={"comeet_token":"' + "A" * 20 + '","comeet_uid":"88.002"}') == [("C++ Developer", "https://c/1")]
 assert calls[0].endswith("company/88.002/positions?token=" + "A" * 20), calls
 
+jobs.get = lambda url: '[{"title": "Systems Architect"}, {"title": "Systems Architect"}]'
+assert jobs.fetch_jobs({"url": "https://x/Hiring", "json_url": "https://api/x"}) == [("Systems Architect", "https://x/Hiring#Systems%20Architect")]
+
 assert matches("Senior Backend Engineer", ["engineer"])
 assert not matches("Sales Lead", ["engineer"])
 assert matches("Sales Lead", [])

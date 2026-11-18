@@ -9,6 +9,9 @@
     {"name": "Ottopia", "url": "https://www.ottopia.tech/careers", "title_regex": "<h4 fs-cmsfilter-field=\"name\"[^>]*>([^<]+)<"},
     {"name": "Sentrycs", "url": "https://sentrycs.com/careers/"},
     {"name": "High Lander", "url": "https://www.highlander.io/careers"},
-    {"name": "Sightec", "url": "https://sightec.com/career/"}
+    {"name": "Sightec", "url": "https://sightec.com/career/"},
+    {"name": "Roboteam", "url": "https://stage.robo-team.com/careers/", "title_regex": "<div\\s+class=\"t-positions__cell js-show-info\">([^<]+)<"},
+    {"name": "Airis Labs", "url": "https://www.comeet.com/jobs/airis_labs/69.00A"},
+    {"name": "Line5", "url": "https://line5.ai/Hiring", "json_url": "https://base44.app/api/apps/69977088566fd31e208d1e2c/entities/OpenPositions?q=%7B%22active%22%3Atrue%7D"}
   ]
 }
