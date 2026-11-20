@@ -145,6 +145,9 @@ def main():
         print("first run: recorded current jobs as the baseline, no alerts sent")
     elif new:
         notify(new)  # raises on failure, so seen.json is only saved after a successful alert
+    else:  # so a quiet day reads as "ran, nothing new", not "did it run?"
+        ok = len(cfg["companies"]) - len(failed)
+        notify([f"Checked {ok} companies, no new jobs today."])
     SEEN.write_text(json.dumps(sorted(seen), indent=1, ensure_ascii=False), "utf-8")
     if failed:
         sys.exit(f"failed companies: {', '.join(failed)}")  # red run = GitHub emails you
